@@ -1,43 +1,33 @@
-import { Component } from 'react';
-import { ModalWrapper, Overlay, Img } from './App.styled';
+import { useEffect, useRef } from 'react';
+import { Overlay, Img, ModalWrapper } from './App.styled';
 
-class Modal extends Component {
-  componentDidMount() {
-    window.addEventListener('keydown', this.handleKeyDown);
-  }
+const Modal = ({ imageURL, onClose }) => {
+  const modalRef = useRef(null);
 
-  componentWillUnmount() {
-    window.removeEventListener('keydown', this.handleKeyDown);
-  }
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
 
-  handleKeyDown = event => {
-    if (event.key === 'Escape') {
-      this.props.onClose();
-    }
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose]);
+
+  const handleImageClick = (event) => {
+    event.stopPropagation();
   };
 
-  handleClickOutside = event => {
-    if (event.target === event.currentTarget) {
-      this.props.onClose();
-    }
-  };
+  return (
+    <Overlay onClick={onClose} ref={modalRef}>
+      <ModalWrapper>
+        <Img src={imageURL} alt="" onClick={handleImageClick} />
+      </ModalWrapper>
+    </Overlay>
+  );
+};
 
-  handleImageClick = event => {
-    event.stopPropagation(); // Zapobiega propagacji kliknięcia na rodzica (Overlay)
-  };
-
-  render() {
-    return (
-      <Overlay onClick={this.handleClickOutside}>
-        <ModalWrapper>
-          <Img
-            src={this.props.imageURL}
-            alt=""
-            onClick={this.handleImageClick}
-          />
-        </ModalWrapper>
-      </Overlay>
-    );
-  }
-}
 export default Modal;
